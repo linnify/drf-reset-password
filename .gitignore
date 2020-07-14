@@ -1,0 +1,16 @@
+.pypirc
+.vscode
+.idea
+.DS_Store
+
+*.pyc
+*.pyo
+.env
+.env.dev
+.env.prod
+
+__pycache__/
+.tox
+dist
+**/__pycache__/
+/*.egg-info/
