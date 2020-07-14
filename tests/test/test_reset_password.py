@@ -1,0 +1,50 @@
+import json
+
+from django.contrib.auth.models import User
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from reset_password.models import ResetPasswordToken
+from tests.test.api_set_up import APISetUp
+
+
+class AuthTestCase(APITestCase, APISetUp):
+    def setUp(self):
+        self.setUpUrls()
+        self.user1 = User.objects.create_user("user1", "user1@mail.com", "secret1")
+        self.user2 = User.objects.create_user("user2", "user2@mail.com", "secret2")
+        self.user3 = User.objects.create_user("user3@mail.com", "not-that-mail@mail.com", "secret3")
+        self.user4 = User.objects.create_user("user4", "user4@mail.com")
+
+    def test_try_reset_password_email_does_not_exist(self):
+        response = self.reset_password_create("tas@mail.com")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        decoded_response = json.loads(response.content.decode())
+        self.assertTrue("user" in decoded_response)
+
+    def test_validate_token(self):
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 0)
+
+        response = self.reset_password_create(email="user1@mail.com")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 1)
+        valid_token = str(ResetPasswordToken.objects.filter(user=self.user1).first().token)
+        response = self.reset_password_validation(valid_token)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.reset_password_validation("bad token")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reset_password(self):
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 0)
+
+        response = self.reset_password_create(email=self.user2.email)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 1)
+        valid_token = str(ResetPasswordToken.objects.filter(user=self.user2).first().token)
+        response = self.reset_password_submit(valid_token, "haha")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user = User.objects.get(id=self.user2.id)
+        self.assertEqual(user.check_password("haha"), True)
