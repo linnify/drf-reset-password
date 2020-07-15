@@ -3,11 +3,11 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-README = open(os.path.join(here, 'README.md')).read()
+README = open(os.path.join(here, 'README.rst')).read()
 
 setup(
     name='drf-reset-password',
-    version='0.4',
+    version='1.0',
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     description='Description',
