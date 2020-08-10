@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('expire_date', models.DateTimeField(null=True)),
                 ('status', models.CharField(choices=[('accepted', 'accepted'), ('pending', 'pending'), ('invalid', 'invalid')], default='pending', max_length=100)),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='reset_password', to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reset_password', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
