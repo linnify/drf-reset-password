@@ -16,4 +16,4 @@ class ResetPasswordManager(Manager):
         return token
 
     def invalidate_existing_token(self, user):
-        return self.filter(user=user).update(status="invalid")
+        return self.filter(user=user, status="pending").update(status="invalid")
