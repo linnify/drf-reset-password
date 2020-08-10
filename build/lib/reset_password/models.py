@@ -42,7 +42,7 @@ class ResetPasswordToken(models.Model):
 
         if not self.id:
             ResetPasswordToken.objects.invalidate_existing_token(user=self.user)
-            self.expire_date = timezone.now() + timedelta(minutes=self._get_email_expiration_time(),)
+            self.expire_date = timezone.now() + timedelta(hours=self._get_email_expiration_time())
             self.send_email()
 
         return super(ResetPasswordToken, self).save(*args, **kwargs)
