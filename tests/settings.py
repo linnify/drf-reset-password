@@ -75,7 +75,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DRF_RESET_EMAIL = {
     'RESET_PASSWORD_EMAIL_TITLE': 'Reset Password',
-    'EMAIL_EXPIRATION_TIME': 24,
+    'EMAIL_EXPIRATION_TIME': 1440,
     'REDIRECT_LINK': 'dsa',
     'APP_NAME': 'test',
     'EMAIL_PROVIDER': 'reset_password.models.EmailProvider',
