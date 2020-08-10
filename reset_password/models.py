@@ -29,7 +29,7 @@ class ResetPasswordToken(models.Model):
     STATUS = StatusType
     token = models.UUIDField(primary_key=False, default=uuid.uuid4)
     expire_date = models.DateTimeField(null=True)
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="reset_password",
         on_delete=models.CASCADE,
