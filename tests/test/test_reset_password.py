@@ -48,3 +48,28 @@ class AuthTestCase(APITestCase, APISetUp):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         user = User.objects.get(id=self.user2.id)
         self.assertEqual(user.check_password("haha"), True)
+
+    def test_multiple_tokens(self):
+        response = self.reset_password_create(email=self.user2.email)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 1)
+
+        response = self.reset_password_create(email=self.user2.email)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 2)
+
+        response = self.reset_password_create(email=self.user2.email)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 3)
+        self.assertEqual(ResetPasswordToken.objects.filter(status="invalid").count(), 2)
+
+    def test_accepted(self):
+        self.reset_password_create(email=self.user2.email)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 1)
+        valid_token = str(ResetPasswordToken.objects.filter(user=self.user2).first().token)
+        response = self.reset_password_submit(valid_token, "haha")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.reset_password_create(email=self.user2.email)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 2)
