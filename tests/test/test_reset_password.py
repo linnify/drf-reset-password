@@ -71,5 +71,5 @@ class AuthTestCase(APITestCase, APISetUp):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         response = self.reset_password_create(email=self.user2.email)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(ResetPasswordToken.objects.all().count(), 2)
