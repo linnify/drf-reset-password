@@ -40,6 +40,7 @@ You can configure the library from the variable `DRF_RESET_EMAIL` that you will 
     'REDIRECT_LINK': 'dsa',
     'APP_NAME': 'test',
     'EMAIL_PROVIDER': 'reset_password.models.EmailProvider',
+    'CONTENT_PROVIDER': 'reset_password.models.DefaultContentProvider',  
     'EMAIL_FIELD': 'email',
 }
 ```
@@ -59,6 +60,10 @@ You can configure the library from the variable `DRF_RESET_EMAIL` that you will 
 `EMAIL_FIELD` - This is the field on the user that contains the email. If you are using django a user model
 you should always have it on email. `EMAIL_FIELD` is on default on email.
 
+`CONTENT_PROVIDER` - The class which will be called to build the content of the email
+ (The class has to extend the class ContentProvider and implement the method
+  make_content.). If none set, a DefaultContentProvider will be set, creating content
+   with the above specified details (template, link, etc.).
 
 
 ## Template Creation 
