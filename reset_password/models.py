@@ -25,6 +25,38 @@ class StatusType(Enum):
 STATUS_TYPES = [(e.value, e.value) for e in StatusType]
 
 
+class ContentProvider:
+    def make_content(self, template=None, link=None, token=None, app_name=None,
+                     email=None, *args, **kwargs):
+        raise NotImplementedError()
+
+
+class DefaultContentProvider(ContentProvider):
+    def make_content(self, template=None, link=None, token=None, app_name=None,
+                     email=None, *args, **kwargs):
+        content = render_to_string(
+            self._get_email_template(),
+            {"link": self._get_redirect_link() + "?token=" + str(token),
+             "app_name": self._get_app_name(), "email": email},
+        )
+        return content
+
+    def _get_email_template(self):
+        return settings.DRF_RESET_EMAIL[
+            "RESET_PASSWORD_EMAIL_TEMPLATE"] if settings.DRF_RESET_EMAIL.get(
+            "RESET_PASSWORD_EMAIL_TEMPLATE") else "reset_password_email.html"
+
+    def _get_redirect_link(self):
+        if not settings.DRF_RESET_EMAIL.get("REDIRECT_LINK"):
+            raise RedirectLinkNotSet()
+        return settings.DRF_RESET_EMAIL.get("REDIRECT_LINK")
+
+    def _get_app_name(self):
+        if not settings.DRF_RESET_EMAIL.get("APP_NAME"):
+            raise AppNameNotSet()
+        return settings.DRF_RESET_EMAIL.get("APP_NAME")
+
+
 class ResetPasswordToken(models.Model):
     STATUS = StatusType
     token = models.UUIDField(primary_key=False, default=uuid.uuid4)
@@ -34,7 +66,8 @@ class ResetPasswordToken(models.Model):
         related_name="reset_password",
         on_delete=models.CASCADE,
     )
-    status = models.CharField(choices=STATUS_TYPES, default=StatusType.PENDING.value, max_length=100)
+    status = models.CharField(choices=STATUS_TYPES, default=StatusType.PENDING.value,
+                              max_length=100)
     created = models.DateTimeField(default=django.utils.timezone.now)
     objects = ResetPasswordManager()
 
@@ -42,7 +75,8 @@ class ResetPasswordToken(models.Model):
 
         if self._state.adding:
             ResetPasswordToken.objects.invalidate_existing_token(user=self.user)
-            self.expire_date = timezone.now() + timedelta(minutes=self._get_email_expiration_time(),)
+            self.expire_date = timezone.now() + timedelta(
+                minutes=self._get_email_expiration_time(), )
             self.send_email()
 
         return super(ResetPasswordToken, self).save(*args, **kwargs)
@@ -54,10 +88,8 @@ class ResetPasswordToken(models.Model):
         mail = self._get_email_provider()
         email = self._get_user_email()
 
-        content = render_to_string(
-            self._get_email_template(),
-            {"link": self._get_redirect_link()+"?token="+str(self.token), "app_name": self._get_app_name(), "email": email},
-        )
+        content_provider = self._get_content_provider()
+        content = content_provider.make_content(email=email, token=self.token)
         return mail.send_email(email, self._get_email_title(), content)
 
     def update_password(self, password: str):
@@ -81,24 +113,23 @@ class ResetPasswordToken(models.Model):
             raise EmailProviderClassInvalid()
         return email_class()
 
-    def _get_email_template(self):
-        return settings.DRF_RESET_EMAIL["RESET_PASSWORD_EMAIL_TEMPLATE"] if settings.DRF_RESET_EMAIL.get("RESET_PASSWORD_EMAIL_TEMPLATE") else "reset_password_email.html"
+    def _get_content_provider(self):
+
+        if not settings.DRF_RESET_EMAIL.get("CONTENT_PROVIDER"):
+            content_class = DefaultContentProvider
+        else:
+            content_class = locate(settings.DRF_RESET_EMAIL["CONTENT_PROVIDER"])
+        return content_class()
 
     def _get_email_title(self):
-        return settings.DRF_RESET_EMAIL["RESET_PASSWORD_EMAIL_TITLE"] if settings.DRF_RESET_EMAIL.get("RESET_PASSWORD_EMAIL_TITLE") else "Reset Password"
+        return settings.DRF_RESET_EMAIL[
+            "RESET_PASSWORD_EMAIL_TITLE"] if settings.DRF_RESET_EMAIL.get(
+            "RESET_PASSWORD_EMAIL_TITLE") else "Reset Password"
 
     def _get_email_expiration_time(self):
-        return settings.DRF_RESET_EMAIL["EMAIL_EXPIRATION_TIME"] if settings.DRF_RESET_EMAIL.get("EMAIL_EXPIRATION_TIME") else 24
-
-    def _get_redirect_link(self):
-        if not settings.DRF_RESET_EMAIL.get("REDIRECT_LINK"):
-            raise RedirectLinkNotSet()
-        return settings.DRF_RESET_EMAIL.get("REDIRECT_LINK")
-
-    def _get_app_name(self):
-        if not settings.DRF_RESET_EMAIL.get("APP_NAME"):
-            raise AppNameNotSet()
-        return settings.DRF_RESET_EMAIL.get("APP_NAME")
+        return settings.DRF_RESET_EMAIL[
+            "EMAIL_EXPIRATION_TIME"] if settings.DRF_RESET_EMAIL.get(
+            "EMAIL_EXPIRATION_TIME") else 24
 
 
 class EmailProvider:
@@ -106,4 +137,5 @@ class EmailProvider:
         if settings.DRF_RESET_EMAIL.get("TEST_ENV"):
             return
         else:
-            raise NotImplementedError("You need to implement this method on your email provider")
+            raise NotImplementedError(
+                "You need to implement this method on your email provider")
