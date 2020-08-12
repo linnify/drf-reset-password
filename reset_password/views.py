@@ -25,8 +25,7 @@ class ResetPasswordView(mixins.CreateModelMixin, viewsets.GenericViewSet):
             user = user.id
         serializer = self.get_serializer(data={"user": user})
         serializer.is_valid(raise_exception=True)
-        reset_password = serializer.save()
-        reset_password.send_email(self.request.META.HTTP_HOST)
+        serializer.save()
         headers = self.get_success_headers(serializer.data)
         return Response(status=status.HTTP_201_CREATED, headers=headers)
 

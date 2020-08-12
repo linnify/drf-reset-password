@@ -43,19 +43,20 @@ class ResetPasswordToken(models.Model):
         if self._state.adding:
             ResetPasswordToken.objects.invalidate_existing_token(user=self.user)
             self.expire_date = timezone.now() + timedelta(minutes=self._get_email_expiration_time(),)
+            self.send_email()
 
         return super(ResetPasswordToken, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.expire_date}-{self.token}-{self.status}"
 
-    def send_email(self, host):
+    def send_email(self):
         mail = self._get_email_provider()
         email = self._get_user_email()
 
         content = render_to_string(
             self._get_email_template(),
-            {"link": host + self._get_redirect_link()+"?token="+str(self.token), "app_name": self._get_app_name(), "email": email},
+            {"link": self._get_redirect_link()+"?token="+str(self.token), "app_name": self._get_app_name(), "email": email},
         )
         return mail.send_email(email, self._get_email_title(), content)
 
