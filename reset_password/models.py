@@ -11,7 +11,7 @@ from django.utils import timezone
 from reset_password.exceptions import (
     EmailProviderClassNotSet,
     EmailProviderClassInvalid,
-    RedirectLinkNotSet, AppNameNotSet)
+    RedirectLinkNotSet, AppNameNotSet, SamePassword)
 from reset_password.managers import ResetPasswordManager
 from django.conf import settings
 
@@ -93,6 +93,8 @@ class ResetPasswordToken(models.Model):
         return mail.send_email(email, self._get_email_title(), content)
 
     def update_password(self, password: str):
+        if self.user.check_password(password):
+            raise SamePassword()
         self.user.set_password(password)
         self.user.save()
         self.status = StatusType.ACCEPTED.value
