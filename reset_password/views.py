@@ -4,6 +4,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from reset_password.exceptions import SamePassword
 from reset_password.models import ResetPasswordToken
 from reset_password.serializers import (
     ResetPasswordSerializer,
@@ -43,9 +44,11 @@ class ResetPasswordView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
         if token is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
         PasswordSerializer(data=request.data).is_valid(raise_exception=True)
-        token.update_password(request.data.get("password"))
+        try:
+            token.update_password(request.data.get("password"))
+        except SamePassword as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data=e.message)
 
         return Response(status=status.HTTP_200_OK)
 

@@ -73,3 +73,11 @@ class AuthTestCase(APITestCase, APISetUp):
         response = self.reset_password_create(email=self.user2.email)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(ResetPasswordToken.objects.all().count(), 2)
+
+    def test_same_password(self):
+        self.reset_password_create(email=self.user2.email)
+        self.assertEqual(ResetPasswordToken.objects.all().count(), 1)
+        valid_token = str(ResetPasswordToken.objects.filter(user=self.user2).first().token)
+
+        response = self.reset_password_submit(valid_token, "secret2")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

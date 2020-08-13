@@ -19,3 +19,9 @@ class AppNameNotSet(Exception):
     message = (
         "You need to set up your app name for the default template"
     )
+
+
+class SamePassword(Exception):
+    message = (
+        "Same password was set before"
+    )
