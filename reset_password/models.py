@@ -15,6 +15,8 @@ from reset_password.exceptions import (
 from reset_password.managers import ResetPasswordManager
 from django.conf import settings
 
+from reset_password.signals import password_updated
+
 
 class StatusType(Enum):
     ACCEPTED = "accepted"
@@ -97,6 +99,10 @@ class ResetPasswordToken(models.Model):
         self.user.save()
         self.status = StatusType.ACCEPTED.value
         self.save()
+        self._password_updated_signal(user=self.user)
+
+    def _password_updated_signal(self, user):
+        password_updated.send(sender=self.__class__, user=user)
 
     def _get_user_email(self):
         if settings.DRF_RESET_EMAIL.get("EMAIL_FIELD"):
