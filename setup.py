@@ -7,7 +7,7 @@ README = open(os.path.join(here, 'README.rst')).read()
 
 setup(
     name='drf-reset-password',
-    version='1.2.3',
+    version='1.2.4',
     packages=find_packages(exclude=['tests', 'tests.*']),
     include_package_data=True,
     description='Description',
