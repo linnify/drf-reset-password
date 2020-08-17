@@ -40,8 +40,9 @@ You can configure the library from the variable `DRF_RESET_EMAIL` that you will 
     'REDIRECT_LINK': 'dsa',
     'APP_NAME': 'test',
     'EMAIL_PROVIDER': 'reset_password.models.EmailProvider',
-    'CONTENT_PROVIDER': 'reset_password.models.DefaultContentProvider',  
+    'CONTENT_PROVIDER': 'reset_password.models.DefaultContentProvider',
     'EMAIL_FIELD': 'email',
+    'CUSTOM_PASSWORD_SET': False,
 }
 ```
 
@@ -64,6 +65,11 @@ you should always have it on email. `EMAIL_FIELD` is on default on email.
  (The class has to extend the class ContentProvider and implement the method
   make_content.). If none set, a DefaultContentProvider will be set, creating content
    with the above specified details (template, link, etc.).
+  
+`CUSTOM_PASSWORD_SET` - A boolean variable which tells if the password should be
+ saved in a custom way, when catching the `custom_password_update` signal (`True
+ `), or, in the default way (`False`). Note that the status of the token should also
+  be set to `ACCEPTED` if the password was set successfully.
 
 
 ## Template Creation 
