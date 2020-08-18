@@ -81,6 +81,7 @@ DRF_RESET_EMAIL = {
     'APP_NAME': 'test',
     'EMAIL_PROVIDER': 'reset_password.models.EmailProvider',
     'EMAIL_FIELD': 'email',
+    'CUSTOM_PASSWORD_SET': False,
     'TEST_ENV': True,
 }
 
