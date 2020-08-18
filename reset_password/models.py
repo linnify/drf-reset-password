@@ -95,7 +95,8 @@ class ResetPasswordToken(models.Model):
 
     def update_password(self, password: str):
         if settings.DRF_RESET_EMAIL.get("CUSTOM_PASSWORD_SET"):
-            self._custom_password_update_signal(user=self.user, password=password)
+            self._custom_password_update_signal(user=self.user, password=password,
+                                                token=self)
         else:
             if self.user.check_password(password):
                 raise SamePassword()
