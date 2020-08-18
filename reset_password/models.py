@@ -110,8 +110,8 @@ class ResetPasswordToken(models.Model):
         password_updated.send(sender=self.__class__, user=user)
 
     def _custom_password_update_signal(self, password, user, token):
-        custom_password_update(sender=self.__class__, user=user, password=password,
-                               token=token)
+        custom_password_update.send(sender=self.__class__, user=user, password=password,
+                                    token=token)
 
     def _get_user_email(self):
         if settings.DRF_RESET_EMAIL.get("EMAIL_FIELD"):
