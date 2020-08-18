@@ -104,7 +104,7 @@ class ResetPasswordToken(models.Model):
             self.user.save()
             self.status = StatusType.ACCEPTED.value
             self.save()
-            self._password_updated_signal(user=self.user)
+            self.password_updated_signal(user=self.user)
 
     def password_updated_signal(self, user):
         password_updated.send(sender=self.__class__, user=user)
