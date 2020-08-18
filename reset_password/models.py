@@ -4,6 +4,7 @@ from enum import Enum
 from pydoc import locate
 
 import django
+from django.conf import settings
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -13,9 +14,7 @@ from reset_password.exceptions import (
     EmailProviderClassInvalid,
     RedirectLinkNotSet, AppNameNotSet, SamePassword)
 from reset_password.managers import ResetPasswordManager
-from django.conf import settings
-
-from reset_password.signals import password_updated
+from reset_password.signals import password_updated, custom_password_update
 
 
 class StatusType(Enum):
@@ -95,16 +94,24 @@ class ResetPasswordToken(models.Model):
         return mail.send_email(email, self._get_email_title(), content)
 
     def update_password(self, password: str):
-        if self.user.check_password(password):
-            raise SamePassword()
-        self.user.set_password(password)
-        self.user.save()
-        self.status = StatusType.ACCEPTED.value
-        self.save()
-        self._password_updated_signal(user=self.user)
+        if settings.DRF_RESET_EMAIL.get("CUSTOM_PASSWORD_SET"):
+            self._custom_password_update_signal(user=self.user, password=password,
+                                                token=self)
+        else:
+            if self.user.check_password(password):
+                raise SamePassword()
+            self.user.set_password(password)
+            self.user.save()
+            self.status = StatusType.ACCEPTED.value
+            self.save()
+            self.password_updated_signal(user=self.user)
 
-    def _password_updated_signal(self, user):
+    def password_updated_signal(self, user):
         password_updated.send(sender=self.__class__, user=user)
+
+    def _custom_password_update_signal(self, password, user, token):
+        custom_password_update(sender=self.__class__, user=user, password=password,
+                               token=token)
 
     def _get_user_email(self):
         if settings.DRF_RESET_EMAIL.get("EMAIL_FIELD"):
