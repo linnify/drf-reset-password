@@ -106,7 +106,7 @@ class ResetPasswordToken(models.Model):
             self.save()
             self._password_updated_signal(user=self.user)
 
-    def _password_updated_signal(self, user):
+    def password_updated_signal(self, user):
         password_updated.send(sender=self.__class__, user=user)
 
     def _custom_password_update_signal(self, password, user, token):
