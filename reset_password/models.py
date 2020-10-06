@@ -149,4 +149,4 @@ class ResetPasswordToken(models.Model):
 
 class EmailProvider:
     def send_email(self, email, title, content):
-        raise NotImplementedError
+        raise NotImplementedError()
