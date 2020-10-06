@@ -1,15 +1,16 @@
  # DRF Reset Password
 
 This is an easy to include library that takes care of managing the reset password part of your application.
-It offers 3 endpoints used for creating, validating and submitting the password change. The user if offered
-the liberty to chose how the reset password link is sent to the user and where it will redirect the user.
+It offers 3 endpoints used for creating, validating and submitting the password change. The user is offered
+the liberty to choose how the reset password link is sent to the user and where it will redirect the user.
 
 ## Requirements
 
 Python >= 3.7
-Django >=3.0
 
-We highly recommend and only officially support the latest patch release of each Python and Django series
+Django >= 3.0
+
+We highly recommend and only officially support the latest patch release of each Python and Django series.
 
  ## Installation
  
@@ -19,7 +20,7 @@ We highly recommend and only officially support the latest patch release of each
 pip install drf-reset-password
 ```
 
-Add ``reset-password`` to your `INSTALLED_APPS` in settings
+Add ``reset_password`` to your `INSTALLED_APPS` in settings:
 
 ```.python
 INSTALLED_APPS=[
@@ -74,8 +75,8 @@ you should always have it on email. `EMAIL_FIELD` is on default on email.
 
 ## Template Creation 
 
-This is an example on how your template should look we give you 3 variables that you can access. Which are
-`app_name`, `link` and `email`(this is the email of the user which had his password changed).
+This is an example on how your template should look. We give you 3 variables that you can access which are
+`app_name`, `link` and `email` (this is the email of the user which had his password changed).
 
 
 ```html
@@ -96,7 +97,7 @@ This is an example on how your template should look we give you 3 variables that
 
 ## Final steps for set up
 
-When you are done with configuring your reset_password app you can add it to your urls and start making calls.
+When you are done with configuring your `reset_password` app you can add it to your `urls` and start making calls.
 
 ```python
 from django.conf.urls import url
@@ -114,63 +115,59 @@ urlpatterns = [
 
 ## Endpoints
 
-The app has 3 endpoints: one for generating the email for reset password, one for validating the token inside 
-the email and one for changing the password.
+The app has 3 endpoints: 
+- one for generating the email for reset password
+- one for validating the token inside the email 
+- one for changing the password.
 
 ### Create Endpoint
 
-This endpoint receives the email address and creates and calls for the `EMAIL_PROVIDER` to send the email to the
+This endpoint receives the email address and calls for the `EMAIL_PROVIDER` to send the email to the
 user.
 
 ```
-reset-password/ -> POST
+POST /reset-password
 ```
-
-```json
+Request payload
+```
 {
   "email": "example@google.com"
 }
 ```
 
-It has an empty response with 201 if successful and 400 if email is not valid.
+It has an empty response with `201` if successful and `400` if email is not valid.
 
 ### Token Validation
 
 This endpoint receives the token through the query param `token` and it verifies if it is valid.
 
 ```
-reset-password/token-validation -> POST
+GET /reset-password/token-validation
 ```
 
-```json
-{
-
-}
-```
-
-It has an empty response with 200 if successful and 400 if token is not valid.
+It has an empty response with `200` if successful and `400` if token is not valid.
 
 
 ### Change Password
 
-This endpoint receives the token through the query param `token` and it verifies if it is valid. and then changes
-the user's password with the one sent in the body
+This endpoint receives the token through the query param `token` and verifies if it is valid. It changes
+the user's password with the one sent in the request payload.
 
 ```
-reset-password/submit -> POST
+POST /reset-password/submit
 ```
-
+Request payload
 ```json
 {
   "password": "password"
 }
 ```
 
-It has an empty response with 200 if successful and 400 if token is not valid or the password sent.
+It has an empty response with `200` if successful and `400` if the token or the password are invalid.
 
 
 
-Good luck using it and if you have any question or suggestions please contact us
+Good luck using it and if you have any question or suggestions please contact us.
 
 
 
