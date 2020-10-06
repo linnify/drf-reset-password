@@ -149,8 +149,4 @@ class ResetPasswordToken(models.Model):
 
 class EmailProvider:
     def send_email(self, email, title, content):
-        if settings.DRF_RESET_EMAIL.get("TEST_ENV"):
-            return
-        else:
-            raise NotImplementedError(
-                "You need to implement this method on your email provider")
+        raise NotImplementedError
