@@ -82,7 +82,6 @@ DRF_RESET_EMAIL = {
     'EMAIL_PROVIDER': 'reset_password.models.EmailProvider',
     'EMAIL_FIELD': 'email',
     'CUSTOM_PASSWORD_SET': False,
-    'TEST_ENV': True,
 }
 
 LANGUAGE_CODE = 'en-us'

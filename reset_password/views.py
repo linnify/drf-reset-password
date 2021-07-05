@@ -24,6 +24,9 @@ class ResetPasswordView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         user = User.objects.filter(email=request.data["email"]).first()
         if user:
             user = user.id
+        elif user is None and settings.DRF_RESET_EMAIL.get("RETURN_EMAIL_NOT_FOUND_ERROR", True) is False:
+            return Response(status=status.HTTP_201_CREATED)
+
         serializer = self.get_serializer(data={"user": user})
         serializer.is_valid(raise_exception=True)
         serializer.save()
