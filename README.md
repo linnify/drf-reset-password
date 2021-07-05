@@ -72,6 +72,9 @@ you should always have it on email. `EMAIL_FIELD` is on default on email.
  `), or, in the default way (`False`). Note that the status of the token should also
   be set to `ACCEPTED` if the password was set successfully.
 
+`RETURN_EMAIL_NOT_FOUND_ERROR` - A boolean which specifies if the reset password request should return a 400 error
+if the email does not exist in the system. The default value is `True`. If set to `False`, the endpoint will return a 201
+status code
 
 ## Template Creation 
 
